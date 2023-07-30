@@ -7,16 +7,16 @@ namespace Actors
     {
         public WorkerActor()
         {
-            Receive<WorkOrder>(msg =>
+            Receive<DoWork>(msg =>
             {
                 //Thread.Sleep(3000);
-                System.Console.WriteLine($"{Self.Path.Name} get WorkOrder.");
+                System.Console.WriteLine($"{Self.Path.Name} get work.");
                 Sender.Tell(new WorkDone(Self.Path.Name), Self);
             });
 
-            Receive<Salary>(msg =>
+            Receive<GiveMoney>(msg =>
             {
-                System.Console.WriteLine($"{Self.Path.Name} : I have got the salary!");
+                System.Console.WriteLine($"{Self.Path.Name} : get money!");
             });
         }
 

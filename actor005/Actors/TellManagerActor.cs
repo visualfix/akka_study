@@ -9,7 +9,7 @@ namespace Actors
         {
             Receive<WorkDone>(msg =>
             {
-                Sender.Tell(new Salary());
+                Sender.Tell(new GiveMoney());
             });
 
             Receive<string>(msg =>

@@ -1,6 +1,6 @@
 using System;
 
-public class WorkOrder
+public class DoWork
 {
 }
 
@@ -14,6 +14,6 @@ public class WorkDone
     }
 }
 
-public class Salary
+public class GiveMoney
 {
 }

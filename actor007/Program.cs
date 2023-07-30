@@ -2,10 +2,16 @@
 using Actors;
 using Akka.Configuration;
 
-namespace Actor001
+namespace Actor007
 {
     class Program
     {
+        /*
+            # PoisonPill    :
+            # GracefulStop  : Watch, Terminated
+            # DeadLetters   : 
+        */
+
         static void Main(string[] args)
         {
             var logconfig = ConfigurationFactory.ParseString(@"

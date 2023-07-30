@@ -8,24 +8,20 @@ namespace Actors
     {
         public ChildActor()
         {
-            System.Console.WriteLine("Call Constructor");
-
             Receive<string>(s => s.Equals("kill"), msg =>
             {
-                System.Console.WriteLine("kek!");
-                throw new Exception("kek!");
-                return;
+                Context.Stop(Self);
             });
         }
 
         protected override void PreStart()
         {
-            System.Console.WriteLine("PreStart");
+            System.Console.WriteLine($"{Self.Path.Name} - PreStart");
         }
 
         protected override void PreRestart(Exception reason, object message)
         {
-            System.Console.WriteLine($"PreRestart \n reason : {reason} \n message : {message}");
+            System.Console.WriteLine($"{Self.Path.Name} - PreRestart \n reason : {reason} \n message : {message}");
 
             foreach (IActorRef each in Context.GetChildren())
             {
@@ -37,14 +33,14 @@ namespace Actors
 
         protected override void PostRestart(Exception reason)
         {
-            System.Console.WriteLine($"PostRestart {reason}");
+            System.Console.WriteLine($"{Self.Path.Name} - PostRestart {reason}");
 
             PreStart();
         }
 
         protected override void PostStop()
         {
-            System.Console.WriteLine("PostStop");
+            System.Console.WriteLine($"{Self.Path.Name} - PostStop");
         }
 
         public static Props Props()

@@ -1,10 +1,14 @@
 ﻿using Akka.Actor;
 using Actors;
 
-namespace Actor001
+namespace Actor006
 {
     class Program
     {
+        /*
+            # SetReceiveTimeout : ReceiveTimeout Message, Interval
+        */
+
         static void Main(string[] args)
         {
             var system = ActorSystem.Create("MyActorSystem006");
@@ -12,7 +16,7 @@ namespace Actor001
             var actor = system.ActorOf(TimeoutActor.Props(), "TimeoutActor");
             actor.Tell("Hello");
 
-            Thread.Sleep(10000);
+            Thread.Sleep(5000);
         }
     }
 }

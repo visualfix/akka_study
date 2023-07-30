@@ -2,10 +2,16 @@
 using Actors;
 using Akka.Configuration;
 
-namespace Actor001
+namespace Actor008
 {
     class Program
     {
+        /*
+            # Become            : Only Top
+            # BecomeStacked     : Push
+            # UnbecomeStacked   : Pop
+        */
+
         static void Main(string[] args)
         {
             var logconfig = ConfigurationFactory.ParseString(@"
@@ -13,7 +19,7 @@ namespace Actor001
                     loglevel = DEBUG
                 }");
 
-            var system = ActorSystem.Create("MyActorSystem007", logconfig);
+            var system = ActorSystem.Create("MyActorSystem008", logconfig);
 
             var animals = system.ActorOf(AnimalSounds.Props(), "AnimalSounds");
             

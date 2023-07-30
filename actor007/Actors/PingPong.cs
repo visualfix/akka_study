@@ -5,7 +5,7 @@ using Akka.Event;
 
 namespace Actors
 {
-    public class PingPong : ReceiveActor
+    public class PingPong : ReceiveActor, ILogReceive
     {
         IActorRef? receiver_actor = null;
         private readonly ILoggingAdapter _log = Logging.GetLogger(Context);
@@ -15,7 +15,6 @@ namespace Actors
             _log.Debug($"Constructor");
             Receive<PingPongMessage>(msg =>
             {
-                _log.Debug($"MSG FROM {Sender.Path.Name}");
                 Thread.Sleep(300);
 
                 receiver_actor?.Tell(new PingPongMessage());

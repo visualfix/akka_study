@@ -23,11 +23,12 @@ namespace Actors
             var manager = Context.ActorOf(AskManagerActor.Props(), "ASK-Manager");
 
             var tasks = new List<Task<WorkDone>>();
-            tasks.Add(worker1.Ask<WorkDone>(new WorkOrder(), TimeSpan.FromSeconds(5)));
-            tasks.Add(worker2.Ask<WorkDone>(new WorkOrder(), TimeSpan.FromSeconds(1)));
+            //var tasks = new List<Task>();
+            tasks.Add(worker1.Ask<WorkDone>(new DoWork(), TimeSpan.FromSeconds(5)));
+            tasks.Add(worker2.Ask<WorkDone>(new DoWork(), TimeSpan.FromSeconds(1)));
 
-            Task.WhenAll(tasks).PipeTo(manager, Self, ()=>{return "success";}, (e)=>{return "fail";});
-            //Task.WhenAll(tasks).PipeTo(manager, Self);
+            //Task.WhenAll(tasks).PipeTo(manager, Self, ()=>{return "success";}, (e)=>{return "fail";});
+            Task.WhenAll(tasks).PipeTo(manager, Self);
         }
 
         public static Props Props()

@@ -5,8 +5,6 @@ namespace Actors
 {
     public class TimeoutActor : ReceiveActor
     {
-        //private ILoggingAdapter log = Context.GetLogger();
-
         public TimeoutActor()
         {
             Receive<string>(s => s.Equals("Hello"), msg =>
@@ -17,9 +15,9 @@ namespace Actors
             Receive<ReceiveTimeout>(msg =>
             {
                 System.Console.WriteLine("I get the ReceiveTimeout");
-                Context.SetReceiveTimeout(null);
+                //Context.SetReceiveTimeout(null);
                 //throw new Exception("Receive timed out");
-                //return;
+                return;
             });
         }
                 

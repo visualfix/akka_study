@@ -5,38 +5,31 @@ namespace Actors
 {
     public class WatchActor : ReceiveActor
     {
-        public IActorRef FirstChild = Context.ActorOf(ChildActor.Props(), "first");
-
         public WatchActor()
         {
-            Context.Watch(FirstChild);
+            Context.ActorOf(ChildActor.Props(), "first");
+            Context.ActorOf(ChildActor.Props(), "second");
 
-            //var second = Context.ActorOf(ChildActor.Props(), "second");
-            //Context.Watch(second);
+            Receive<string>(s => s.Equals("WatchAll"), msg =>
+            {
+                foreach (var child in Context.GetChildren())
+                {
+                    Context.Watch(child);
+                }
+            });
 
-            Receive<string>(s => s.Equals("kill"), msg =>
+            Receive<string>(s => s.Equals("KillAll"), msg =>
             {
                 foreach (var child in Context.GetChildren())
                 {
                     //Context.Stop(child);
-
                     child.Tell("kill");
                 }
             });
 
-            Receive<string>(s => s.Equals("realay"), msg =>
-            {
-                FirstChild.Tell(msg);
-            });
-
-            Receive<Terminated>(t => t.ActorRef.Equals(FirstChild), msg =>
-            {
-                System.Console.WriteLine($"Terminated : {Sender} (only for first child)");
-            });
-
             Receive<Terminated>(msg =>
             {
-                System.Console.WriteLine($"Terminated : {Sender}");
+                System.Console.WriteLine($"Terminated : {msg.ActorRef}");
             });
         }
 

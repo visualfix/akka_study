@@ -1,10 +1,15 @@
 ﻿using Akka.Actor;
 using Actors;
 
-namespace Actor001
+namespace Actor002
 {
     class Program
     {
+        /*
+            # BestPractice  : 
+            # InnerMessage  : 
+        */
+
         static void Main(string[] args)
         {
             var system = ActorSystem.Create("MyActorSystem002");
@@ -20,9 +25,6 @@ namespace Actor001
             //receive_actor.Tell(public_msg, send_actor);
 
             Thread.Sleep(1000);
-            system.Stop(receive_actor);
-            system.Stop(send_actor);       
-            //Console.ReadLine();
         }
     }
 }

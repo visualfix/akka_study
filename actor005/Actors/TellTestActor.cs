@@ -31,8 +31,8 @@ namespace Actors
             var worker1 = Context.ActorOf(WorkerActor.Props(), "TELL-Wroker1");
             var worker2 = Context.ActorOf(WorkerActor.Props(), "TELL-Wroker2");
             
-            worker1.Tell(new WorkOrder());
-            worker2.Tell(new WorkOrder());
+            worker1.Tell(new DoWork());
+            worker2.Tell(new DoWork());
         }
 
         public static Props Props()
