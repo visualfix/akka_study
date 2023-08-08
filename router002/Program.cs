@@ -3,7 +3,7 @@ using Actors;
 using Akka.Routing;
 using Akka.Configuration;
 
-namespace Router001
+namespace Router002
 {
     class Program
     {
