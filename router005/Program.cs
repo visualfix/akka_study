@@ -15,7 +15,7 @@ namespace Router003
             var parent = system.ActorOf(Parent.Props(), "parent");
             parent.Tell("do!");
             
-            Thread.Sleep(10000);
+            Thread.Sleep(10000); 
         }
     }
 }
