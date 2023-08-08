@@ -6,21 +6,21 @@ namespace Actors
 {
   public class Worker: ReceiveActor
   {
+    int Index;
     private readonly ILoggingAdapter _log = Logging.GetLogger(Context);
-    public Worker()
+    public Worker(int idx)
     {
+      Index = idx;
       Receive<string>(msg =>
       {
-        //_log.Debug($"{Thread.CurrentThread.ManagedThreadId}");
-        //Thread.Sleep(200);
-        Sender.Tell(new Response(Thread.CurrentThread.ManagedThreadId));
+        Sender.Tell(new Response(Index, Thread.CurrentThread.ManagedThreadId));
       });
 
     }
 
-    public static Props Props()
+    public static Props Props(int idx)
     {
-      return Akka.Actor.Props.Create<Worker>();
+      return Akka.Actor.Props.Create<Worker>(idx);
     }
   }
 }

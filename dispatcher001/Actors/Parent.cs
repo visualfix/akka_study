@@ -12,13 +12,14 @@ namespace Actors
     IActorRef route_wokers2;
 
     Dictionary<int, int> ThreadCount = new Dictionary<int, int>();
+    Dictionary<int, int> ThreadCount2 = new Dictionary<int, int>();
     public Parent()
     {
       route_wokers = Context.ActorOf(
-          Worker.Props().WithRouter(FromConfig.Instance), "worker_pool");
+          Worker.Props(1).WithRouter(FromConfig.Instance), "worker_pool");
 
       route_wokers2 = Context.ActorOf(
-          Worker.Props().WithRouter(new RoundRobinPool(5)).WithDispatcher("my-dispatcher2"), "worker_pool2");
+          Worker.Props(2).WithRouter(new RoundRobinPool(5)).WithDispatcher("my-dispatcher2"), "worker_pool2");
           
       Receive<string>(s=>s.Equals("do!"), msg =>
       {
@@ -40,7 +41,7 @@ namespace Actors
       {
         foreach(var p in ThreadCount)
         {
-          System.Console.WriteLine($"{p.Key} {p.Value}");
+          System.Console.WriteLine($"{p.Key} {p.Value} {ThreadCount2[p.Key]}");
         }
       });
       
@@ -49,10 +50,16 @@ namespace Actors
         if(ThreadCount.ContainsKey(msg.TID) == false)
         {
           ThreadCount[msg.TID] = 0;
+          ThreadCount2[msg.TID] = 0;
+        }
+
+        if(msg.Index == 1)
+        {
+          ThreadCount[msg.TID]++;
         }
         else
         {
-          ThreadCount[msg.TID]++;
+          ThreadCount2[msg.TID]++;
         }
       });
 
