@@ -14,11 +14,9 @@ namespace Dispatcher001
 
             var parent = system.ActorOf(Parent.Props(), "parent");
             parent.Tell("do!");
-
-            Thread.Sleep(2000); 
-            parent.Tell("result!");
-            
-            Thread.Sleep(10000); 
+            Thread.Sleep(100000); 
+            //parent.Tell("result!");            
+            Thread.Sleep(1000); 
         }
     }
 }

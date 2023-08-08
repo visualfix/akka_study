@@ -13,9 +13,10 @@ namespace Actors
       Index = idx;
       Receive<string>(msg =>
       {
+        //_log.Debug(msg);
+        Thread.Sleep(10);
         Sender.Tell(new Response(Index, Thread.CurrentThread.ManagedThreadId));
       });
-
     }
 
     public static Props Props(int idx)
