@@ -12,11 +12,14 @@ namespace Router002
             var config = ConfigurationFactory.Load();
             var system = ActorSystem.Create("MyRouterSystem001", config);
 
-            var parent = system.ActorOf(ParentWorker.Props(3), "workers");
+            int child_cnt = 3;
+            while(child_cnt --> 0)
+            {
+                system.ActorOf(Worker.Props(), $"w{child_cnt}");
+                System.Console.WriteLine($"make : w{child_cnt}");
+            }
 
-            var route_wokers = system.ActorOf(
-                Props.Empty.WithRouter(FromConfig.Instance)
-                , "worker_group");
+            var route_wokers = system.ActorOf(Props.Empty.WithRouter(FromConfig.Instance), "worker_group");
 
             int call_cnt = 10;
             while( call_cnt --> 0)
