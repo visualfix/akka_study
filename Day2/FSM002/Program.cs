@@ -2,32 +2,32 @@
 using Akka.Configuration;
 
 using Actors;
-using FSM001.Structures.Commands;
-using FSM001.Structures.Datas;
+using FSM002.Structures.Commands;
+using FSM002.Structures.Datas;
 
 
-namespace FSM001
+namespace FSM002
 {
     class Program
     {
         static void Main(string[] args)
         {
-            var config = ConfigurationFactory.ParseString(@"
-            akka {
-                persistence.journal {
-                    plugin = ""akka.persistence.journal.inmem2""
-                    inmem2 {
-                        class = ""MyCustomJournal.MyJournal, FSM001""
-                        plugin-dispatcher = ""akka.actor.default-dispatcher""
-                    }
-                    auto-start-journals = [""akka.persistence.journal.inmem2""]
-                }
-            }");
+            //var config = ConfigurationFactory.ParseString(@"
+            //akka {
+            //    persistence.journal {
+            //        plugin = ""akka.persistence.journal.inmem2""
+            //        inmem2 {
+            //            class = ""MyCustomJournal.MyJournal, FSM001""
+            //            plugin-dispatcher = ""akka.actor.default-dispatcher""
+            //        }
+            //        auto-start-journals = [""akka.persistence.journal.inmem2""]
+            //    }
+            //}");
 
             var logconfig = ConfigurationFactory.ParseString(@"
                 akka {
                     loglevel = DEBUG
-                }").WithFallback(config);
+                }").WithFallback(ConfigurationFactory.Default());
             var msgconfig = ConfigurationFactory.ParseString(@"
                 akka {
                     actor.debug
@@ -37,10 +37,10 @@ namespace FSM001
                     }
                 }").WithFallback(logconfig);
 
-            var system = ActorSystem.Create("MyActorSystem001", msgconfig);
+            var system = ActorSystem.Create("MyActorSystem001");//, msgconfig);
 
-            var repo_actor = system.ActorOf(ReportActor.Props(), "Report001");
-            var shop_actor = system.ActorOf(FSMShopActor.Props(repo_actor), "Shop001");
+            var repo_actor = system.ActorOf(ReportActor.Props(), "Report002");
+            var shop_actor = system.ActorOf(FSMShopActor.Props(repo_actor), "Shop002");
             
             shop_actor.Tell(new AddItem(new Item("item01", "아이템1", 100)));
             shop_actor.Tell(new AddItem(new Item("item02", "아이템2", 100)));

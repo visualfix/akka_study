@@ -1,6 +1,6 @@
-using FSM002.Structures.Datas;
+using FSM001.Structures.Datas;
 
-namespace FSM002.Structures.Events.Reports
+namespace FSM001.Structures.Events.Reports
 {
     public interface IReportEvent { }
 

@@ -1,6 +1,6 @@
 using Akka.Persistence.Fsm;
 
-namespace FSM002.Structures.States
+namespace FSM001.Structures.States
 {
     public interface IUserState : Akka.Persistence.Fsm.PersistentFSM.IFsmState { }
 

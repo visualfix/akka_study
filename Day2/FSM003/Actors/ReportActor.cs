@@ -1,5 +1,5 @@
 using Akka.Actor;
-using FSM002.Structures.Events.Reports;
+using FSM001.Structures.Events.Reports;
 
 namespace Actors
 {

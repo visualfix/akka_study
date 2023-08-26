@@ -1,6 +1,6 @@
 using System.Collections.Immutable;
 
-namespace FSM002.Structures.Datas
+namespace FSM001.Structures.Datas
 {
     public class Item
     {

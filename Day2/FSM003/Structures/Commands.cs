@@ -1,6 +1,6 @@
-using FSM002.Structures.Datas;
+using FSM001.Structures.Datas;
 
-namespace FSM002.Structures.Commands
+namespace FSM001.Structures.Commands
 {
     public interface ICommand { }
 
