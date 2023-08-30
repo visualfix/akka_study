@@ -1,6 +1,6 @@
-using FSM001.Structures.Datas;
+using FSM.Structures.Datas;
 
-namespace FSM001.Structures.Events.Domains
+namespace FSM.Structures.Events.Domains
 {
     public interface IDomainEvent { }
 

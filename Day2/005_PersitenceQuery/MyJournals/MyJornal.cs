@@ -11,7 +11,7 @@ using Akka.Configuration;
 using Akka.Streams.Dsl;
 using Akka.Persistence.Query;
 
-namespace FSM004.MyJournals
+namespace PersitenceQuery.MyJournals
 {
     /// <summary>
     /// Use for tests only!

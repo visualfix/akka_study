@@ -1,22 +1,21 @@
-using FSM001.Structures.Datas;
+using FSM.Structures.Datas;
 
-namespace FSM001.Structures.Events.Reports
+namespace FSM.Structures.Events.Reports;
+
+public interface IReportEvent { }
+
+public class PurchaseWasMade : IReportEvent
 {
-    public interface IReportEvent { }
-
-    public class PurchaseWasMade : IReportEvent
+    public PurchaseWasMade(IEnumerable<Item> items)
     {
-        public PurchaseWasMade(IEnumerable<Item> items)
-        {
-            Items = items;
-        }
-
-        public IEnumerable<Item> Items { get; }
+        Items = items;
     }
 
-    public class ShoppingCardDiscarded : IReportEvent
-    {
-        public static ShoppingCardDiscarded Instance { get; } = new ShoppingCardDiscarded();
-        private ShoppingCardDiscarded() { }
-    }
+    public IEnumerable<Item> Items { get; }
+}
+
+public class ShoppingCardDiscarded : IReportEvent
+{
+    public static ShoppingCardDiscarded Instance { get; } = new ShoppingCardDiscarded();
+    private ShoppingCardDiscarded() { }
 }

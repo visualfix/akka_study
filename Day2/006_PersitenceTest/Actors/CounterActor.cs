@@ -1,6 +1,8 @@
 using Akka.Actor;
 using Akka.Persistence;
 
+namespace PersitenceTest.Actors;
+
 public class CounterActor : UntypedPersistentActor
 {
     public CounterActor(string id)

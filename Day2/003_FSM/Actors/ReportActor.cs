@@ -1,9 +1,9 @@
 using Akka.Actor;
-using FSM001.Structures.Events.Reports;
+using FSM.Structures.Events.Reports;
 
-namespace Actors
-{
-  public class ReportActor: ReceiveActor
+namespace FSM.Actors;
+
+public class ReportActor: ReceiveActor
   {
     public ReportActor()
     {
@@ -24,4 +24,3 @@ namespace Actors
       return Akka.Actor.Props.Create<ReportActor>();
     }
   }
-}

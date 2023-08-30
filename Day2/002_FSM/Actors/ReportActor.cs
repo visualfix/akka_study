@@ -1,27 +1,26 @@
 using Akka.Actor;
-using FSM002.Structures.Events.Reports;
+using FSM.Structures.Events.Reports;
 
-namespace Actors
+namespace FSM.Actors;
+
+public class ReportActor: ReceiveActor
 {
-  public class ReportActor: ReceiveActor
+  public ReportActor()
   {
-    public ReportActor()
-    {
-      Receive<PurchaseWasMade>(message => {
-        foreach(var item in message.Items)
-        {
-            Console.WriteLine(item);
-        }
-      });
+    Receive<PurchaseWasMade>(message => {
+      foreach(var item in message.Items)
+      {
+          Console.WriteLine(item);
+      }
+    });
 
-      Receive<ShoppingCardDiscarded>(message => {
-        System.Console.WriteLine($"ShoppingCardDiscarded");
-      });
-    }
+    Receive<ShoppingCardDiscarded>(message => {
+      System.Console.WriteLine($"ShoppingCardDiscarded");
+    });
+  }
 
-    public static Props Props()
-    {
-      return Akka.Actor.Props.Create<ReportActor>();
-    }
+  public static Props Props()
+  {
+    return Akka.Actor.Props.Create<ReportActor>();
   }
 }

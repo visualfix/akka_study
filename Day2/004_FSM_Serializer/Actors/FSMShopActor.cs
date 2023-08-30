@@ -2,11 +2,11 @@ using Akka.Actor;
 using Akka.Event;
 using Akka.Persistence.Fsm;
 
-using FSM001.Structures.Events.Domains;
-using FSM001.Structures.Events.Reports;
-using FSM001.Structures.Commands;
-using FSM001.Structures.Datas;
-using FSM001.Structures.States;
+using FSM.Structures.Events.Domains;
+using FSM.Structures.Events.Reports;
+using FSM.Structures.Commands;
+using FSM.Structures.Datas;
+using FSM.Structures.States;
 
 
 namespace Actors

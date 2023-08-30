@@ -2,149 +2,147 @@ using Akka.Actor;
 using Akka.Event;
 using Akka.Persistence.Fsm;
 
-using FSM001.Structures.Events.Domains;
-using FSM001.Structures.Events.Reports;
-using FSM001.Structures.Commands;
-using FSM001.Structures.Datas;
-using FSM001.Structures.States;
+using FSM.Structures.Events.Domains;
+using FSM.Structures.Events.Reports;
+using FSM.Structures.Commands;
+using FSM.Structures.Datas;
+using FSM.Structures.States;
 
 
-namespace Actors
+namespace FSM.Actors;
+public class FSMShopActor : PersistentFSM<IUserState, IShoppingCart, IDomainEvent>
 {
-  public class FSMShopActor : PersistentFSM<IUserState, IShoppingCart, IDomainEvent>
-  {
-    private readonly ILoggingAdapter _log = Context.GetLogger();
-    private IActorRef reportActor;
+private readonly ILoggingAdapter _log = Context.GetLogger();
+private IActorRef reportActor;
 
-    public override string PersistenceId { get; } = "my-stable-persistence-id";
+public override string PersistenceId { get; } = "my-stable-persistence-id";
 
-    public static Props Props(IActorRef repoActor)
+public static Props Props(IActorRef repoActor)
+{
+    return Akka.Actor.Props.Create<FSMShopActor>(repoActor);
+}
+
+protected override IShoppingCart ApplyEvent(IDomainEvent evt, IShoppingCart cartBeforeEvent)
+{
+    switch (evt)
     {
-      return Akka.Actor.Props.Create<FSMShopActor>(repoActor);
+        case ItemAdded itemAdded:
+            return cartBeforeEvent.AddItem(itemAdded.Item);
+        case OrderExecuted _: 
+            return cartBeforeEvent;
+        case OrderDiscarded _: 
+            return cartBeforeEvent.Empty();
+        default: return cartBeforeEvent;
     }
+}
 
-    protected override IShoppingCart ApplyEvent(IDomainEvent evt, IShoppingCart cartBeforeEvent)
+public FSMShopActor(IActorRef repoActor)
+{
+    reportActor = repoActor;
+
+    StartWith(LookingAround.Instance, new EmptyShoppingCart());
+
+    When(LookingAround.Instance, (evt, _) =>
     {
-        switch (evt)
+        _log.Debug($"LookingAround : {evt.FsmEvent.ToString()}");
+
+        if (evt.FsmEvent is AddItem addItem)
         {
-            case ItemAdded itemAdded:
-                return cartBeforeEvent.AddItem(itemAdded.Item);
-            case OrderExecuted _: 
-                return cartBeforeEvent;
-            case OrderDiscarded _: 
-                return cartBeforeEvent.Empty();
-            default: return cartBeforeEvent;
+            return GoTo(Shopping.Instance)
+                .Applying(new ItemAdded(addItem.Item))
+                .ForMax(TimeSpan.FromSeconds(1))
+                .AndThen(cart => reportActor.Tell(new PurchaseWasMade(((NonEmptyShoppingCart)cart).Items)));
         }
-    }
+        else if (evt.FsmEvent is GetCurrentCart)
+        {
+            return Stay().Replying(evt.StateData);
+        }
+        
+        return Stay();
+    });
 
-    public FSMShopActor(IActorRef repoActor)
+    When(Shopping.Instance, (evt, _) =>
     {
-        reportActor = repoActor;
+        _log.Debug($"Shopping : {evt.FsmEvent.ToString()}");
 
-        StartWith(LookingAround.Instance, new EmptyShoppingCart());
-
-        When(LookingAround.Instance, (evt, _) =>
+        if (evt.FsmEvent is AddItem addItem)
         {
-            _log.Debug($"LookingAround : {evt.FsmEvent.ToString()}");
-
-            if (evt.FsmEvent is AddItem addItem)
-            {
-                return GoTo(Shopping.Instance)
-                    .Applying(new ItemAdded(addItem.Item))
-                    .ForMax(TimeSpan.FromSeconds(1))
-                    .AndThen(cart => reportActor.Tell(new PurchaseWasMade(((NonEmptyShoppingCart)cart).Items)));
-            }
-            else if (evt.FsmEvent is GetCurrentCart)
-            {
-                return Stay().Replying(evt.StateData);
-            }
-            
-            return Stay();
-        });
-
-        When(Shopping.Instance, (evt, _) =>
+            return Stay()
+                .Applying(new ItemAdded(addItem.Item))
+                .ForMax(TimeSpan.FromSeconds(1))
+                .AndThen(cart => reportActor.Tell(new PurchaseWasMade(((NonEmptyShoppingCart)cart).Items)));
+        }
+        else if (evt.FsmEvent is Buy)
         {
-            _log.Debug($"Shopping : {evt.FsmEvent.ToString()}");
-
-            if (evt.FsmEvent is AddItem addItem)
-            {
-                return Stay()
-                    .Applying(new ItemAdded(addItem.Item))
-                    .ForMax(TimeSpan.FromSeconds(1))
-                    .AndThen(cart => reportActor.Tell(new PurchaseWasMade(((NonEmptyShoppingCart)cart).Items)));
-            }
-            else if (evt.FsmEvent is Buy)
-            {
-                return GoTo(Paid.Instance).Applying(OrderExecuted.Instance)
-                    .AndThen(cart =>
+            return GoTo(Paid.Instance).Applying(OrderExecuted.Instance)
+                .AndThen(cart =>
+                {
+                    if (cart is NonEmptyShoppingCart nonShoppingCart)
                     {
-                        if (cart is NonEmptyShoppingCart nonShoppingCart)
-                        {
-                            reportActor.Tell(new PurchaseWasMade(nonShoppingCart.Items));
-                            SaveStateSnapshot();
-                        }
-                        else if (cart is EmptyShoppingCart)
-                        {
-                            SaveStateSnapshot();
-                        }
-                    });
-            }
-            else if (evt.FsmEvent is Leave)
-            {
-                return Stop().Applying(OrderDiscarded.Instance)
-                    .AndThen(_ =>
-                    {
-                        reportActor.Tell(ShoppingCardDiscarded.Instance);
+                        reportActor.Tell(new PurchaseWasMade(nonShoppingCart.Items));
                         SaveStateSnapshot();
-                    });
-            }
-            else if (evt.FsmEvent is GetCurrentCart)
-            {
-                return Stay().Replying(evt.StateData);
-            }
-            else if (evt.FsmEvent is FSMBase.StateTimeout)
-            {
-                return GoTo(Inactive.Instance).ForMax(TimeSpan.FromSeconds(2));
-            }
-
-            return Stay();
-        });
-
-        When(Inactive.Instance, (evt, _) =>
+                    }
+                    else if (cart is EmptyShoppingCart)
+                    {
+                        SaveStateSnapshot();
+                    }
+                });
+        }
+        else if (evt.FsmEvent is Leave)
         {
-            _log.Debug($"Inactive : {evt.FsmEvent.ToString()}");
-
-            if (evt.FsmEvent is AddItem addItem)
-            {
-                return GoTo(Shopping.Instance)
-                    .Applying(new ItemAdded(addItem.Item))
-                    .ForMax(TimeSpan.FromSeconds(1));
-            }
-            else if (evt.FsmEvent is FSMBase.StateTimeout)
-            {
-                return Stop()
-                    .Applying(OrderDiscarded.Instance)
-                    .AndThen(_ => reportActor.Tell(ShoppingCardDiscarded.Instance));
-            }
-
-            return Stay();
-        });
-
-        When(Paid.Instance, (evt, _) =>
+            return Stop().Applying(OrderDiscarded.Instance)
+                .AndThen(_ =>
+                {
+                    reportActor.Tell(ShoppingCardDiscarded.Instance);
+                    SaveStateSnapshot();
+                });
+        }
+        else if (evt.FsmEvent is GetCurrentCart)
         {
-            _log.Debug($"Paid : {evt.FsmEvent.ToString()}");
+            return Stay().Replying(evt.StateData);
+        }
+        else if (evt.FsmEvent is FSMBase.StateTimeout)
+        {
+            return GoTo(Inactive.Instance).ForMax(TimeSpan.FromSeconds(2));
+        }
 
-            if (evt.FsmEvent is Leave)
-            {
-                return Stop();
-            }
-            else if (evt.FsmEvent is GetCurrentCart)
-            {
-                return Stay().Replying(evt.StateData);
-            }
+        return Stay();
+    });
 
-            return Stay();
-        });
-    }
-  }
+    When(Inactive.Instance, (evt, _) =>
+    {
+        _log.Debug($"Inactive : {evt.FsmEvent.ToString()}");
+
+        if (evt.FsmEvent is AddItem addItem)
+        {
+            return GoTo(Shopping.Instance)
+                .Applying(new ItemAdded(addItem.Item))
+                .ForMax(TimeSpan.FromSeconds(1));
+        }
+        else if (evt.FsmEvent is FSMBase.StateTimeout)
+        {
+            return Stop()
+                .Applying(OrderDiscarded.Instance)
+                .AndThen(_ => reportActor.Tell(ShoppingCardDiscarded.Instance));
+        }
+
+        return Stay();
+    });
+
+    When(Paid.Instance, (evt, _) =>
+    {
+        _log.Debug($"Paid : {evt.FsmEvent.ToString()}");
+
+        if (evt.FsmEvent is Leave)
+        {
+            return Stop();
+        }
+        else if (evt.FsmEvent is GetCurrentCart)
+        {
+            return Stay().Replying(evt.StateData);
+        }
+
+        return Stay();
+    });
+}
 }

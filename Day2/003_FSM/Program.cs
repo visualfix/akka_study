@@ -1,15 +1,15 @@
 ﻿using Akka.Actor;
 using Akka.Configuration;
 
-using Actors;
-using FSM001.Structures.Commands;
-using FSM001.Structures.Datas;
+using FSM.Actors;
+using FSM.Structures.Commands;
+using FSM.Structures.Datas;
 
 /*
     이벤트 + 데이터 2개씩 저장됨
     이때문에 항상 정배수에 스냅샷이 찍히는게 아님
 */
-namespace FSM001
+namespace FSM
 {
     class Program
     {

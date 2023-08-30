@@ -5,7 +5,7 @@ using Akka.Streams.Dsl;
 using Akka;
 using Akka.Streams;
 
-namespace FSM004
+namespace PersitenceQuery
 {
     class Program
     {

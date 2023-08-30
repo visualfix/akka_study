@@ -2,17 +2,17 @@ using Akka.Actor;
 using Akka.Event;
 using Akka.Persistence.Fsm;
 
-using FSM002.Structures.Events.Domains;
-using FSM002.Structures.Events.Reports;
-using FSM002.Structures.Commands;
-using FSM002.Structures.Datas;
-using FSM002.Structures.States;
+using FSM.Structures.Events.Domains;
+using FSM.Structures.Events.Reports;
+using FSM.Structures.Commands;
+using FSM.Structures.Datas;
+using FSM.Structures.States;
 
 
-namespace Actors
+namespace FSM.Actors;
+
+public class FSMShopActor : PersistentFSM<IUserState, IShoppingCart, IDomainEvent>
 {
-  public class FSMShopActor : PersistentFSM<IUserState, IShoppingCart, IDomainEvent>
-  {
     private readonly ILoggingAdapter _log = Context.GetLogger();
     private IActorRef reportActor;
 
@@ -20,7 +20,7 @@ namespace Actors
 
     public static Props Props(IActorRef repoActor)
     {
-      return Akka.Actor.Props.Create<FSMShopActor>(repoActor);
+        return Akka.Actor.Props.Create<FSMShopActor>(repoActor);
     }
 
     protected override IShoppingCart ApplyEvent(IDomainEvent evt, IShoppingCart cartBeforeEvent)
@@ -146,5 +146,4 @@ namespace Actors
             return Stay();
         });
     }
-  }
 }
