@@ -5,6 +5,11 @@ using Actors;
 using FSM002.Structures.Commands;
 using FSM002.Structures.Datas;
 
+/*
+스토리지 플러그인
+커스텀 저널
+사전 로드
+*/
 
 namespace FSM002
 {
@@ -12,32 +17,7 @@ namespace FSM002
     {
         static void Main(string[] args)
         {
-            //var config = ConfigurationFactory.ParseString(@"
-            //akka {
-            //    persistence.journal {
-            //        plugin = ""akka.persistence.journal.inmem2""
-            //        inmem2 {
-            //            class = ""MyCustomJournal.MyJournal, FSM001""
-            //            plugin-dispatcher = ""akka.actor.default-dispatcher""
-            //        }
-            //        auto-start-journals = [""akka.persistence.journal.inmem2""]
-            //    }
-            //}");
-
-            var logconfig = ConfigurationFactory.ParseString(@"
-                akka {
-                    loglevel = DEBUG
-                }").WithFallback(ConfigurationFactory.Default());
-            var msgconfig = ConfigurationFactory.ParseString(@"
-                akka {
-                    actor.debug
-                    {
-                        receive = on
-                        autoreceive = on
-                    }
-                }").WithFallback(logconfig);
-
-            var system = ActorSystem.Create("MyActorSystem001");//, msgconfig);
+            var system = ActorSystem.Create("MyActorSystem001");
 
             var repo_actor = system.ActorOf(ReportActor.Props(), "Report002");
             var shop_actor = system.ActorOf(FSMShopActor.Props(repo_actor), "Shop002");

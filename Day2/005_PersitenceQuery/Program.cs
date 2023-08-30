@@ -1,7 +1,4 @@
 ﻿using Akka.Actor;
-using Akka.Configuration;
-
-using FSM004.MyJournals;
 using Akka.Persistence.Redis.Query;
 using Akka.Persistence.Query;
 using Akka.Streams.Dsl;
