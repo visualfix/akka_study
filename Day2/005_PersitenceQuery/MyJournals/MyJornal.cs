@@ -6,37 +6,31 @@
 //-----------------------------------------------------------------------
 
 using Akka;
-using System.Collections.Generic;
 using Akka.Configuration;
 using Akka.Streams.Dsl;
 using Akka.Persistence.Query;
 
-namespace PersitenceQuery.MyJournals
+namespace PersitenceQuery.MyJournals;
+
+ public class MyJournal : IPersistenceIdsQuery
 {
-    /// <summary>
-    /// Use for tests only!
-    /// Emits infinite stream of strings (representing queried for events).
-    /// </summary>
-    public class MyJournal : IPersistenceIdsQuery
+    public static readonly string Identifier = "akka.persistence.query.my-journal";
+
+    public Source<string, NotUsed> PersistenceIds() => Source.From(Iterate(0, 10)).Select(i => i.ToString());
+
+    private IEnumerable<int> Iterate(int start, int end)
     {
-        public static readonly string Identifier = "akka.persistence.query.my-journal";
-
-        public Source<string, NotUsed> PersistenceIds() => Source.From(Iterate(0, 10)).Select(i => i.ToString());
-
-        private IEnumerable<int> Iterate(int start, int end)
-        {
-            while (start < end) yield return start++;
-        }
+        while (start < end) yield return start++;
     }
+}
 
-    public class MyJournalProvider : IReadJournalProvider
+public class MyJournalProvider : IReadJournalProvider
+{
+    public static Config Config => ConfigurationFactory.ParseString(
+        $@"{MyJournal.Identifier} {{ class = ""{typeof (MyJournalProvider).FullName}, FSM004"" }}");
+
+    public IReadJournal GetReadJournal()
     {
-        public static Config Config => ConfigurationFactory.ParseString(
-            $@"{MyJournal.Identifier} {{ class = ""{typeof (MyJournalProvider).FullName}, FSM004"" }}");
-
-        public IReadJournal GetReadJournal()
-        {
-            return new MyJournal();
-        }
+        return new MyJournal();
     }
 }

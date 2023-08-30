@@ -1,4 +1,3 @@
-using Akka.Actor;
 using Akka.Persistence;
 
 namespace PersitenceTest.Actors;

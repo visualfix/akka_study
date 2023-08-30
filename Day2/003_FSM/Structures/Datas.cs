@@ -1,8 +1,8 @@
 using System.Collections.Immutable;
 
-namespace FSM.Structures.Datas
-{
-    public class Item
+namespace FSM.Structures.Datas;
+
+public class Item
     {
         public Item(string id, string name, double price)
         {
@@ -61,4 +61,3 @@ namespace FSM.Structures.Datas
 
         public ImmutableList<Item> Items { get; }
     }
-}
