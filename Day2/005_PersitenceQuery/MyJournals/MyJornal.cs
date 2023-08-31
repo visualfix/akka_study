@@ -14,20 +14,26 @@ namespace PersitenceQuery.MyJournals;
 
  public class MyJournal : IPersistenceIdsQuery
 {
-    public static readonly string Identifier = "akka.persistence.query.my-journal";
+    public static readonly string Identifier = "akka.persistence.query.journal.my-journal";
 
     public Source<string, NotUsed> PersistenceIds() => Source.From(Iterate(0, 10)).Select(i => i.ToString());
 
     private IEnumerable<int> Iterate(int start, int end)
     {
-        while (start < end) yield return start++;
+        int s = start;
+        while (s < end) yield return s++;
+        Thread.Sleep(3000);
+
+        s = start;
+        while (s < end) yield return s++;
     }
+
 }
 
 public class MyJournalProvider : IReadJournalProvider
 {
     public static Config Config => ConfigurationFactory.ParseString(
-        $@"{MyJournal.Identifier} {{ class = ""{typeof (MyJournalProvider).FullName}, FSM004"" }}");
+        $@"{MyJournal.Identifier} {{ class = ""{typeof (MyJournalProvider).FullName}, PersitenceQuery"" }}");
 
     public IReadJournal GetReadJournal()
     {

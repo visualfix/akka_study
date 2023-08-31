@@ -4,6 +4,10 @@ using Akka.Persistence.Query;
 using Akka.Streams.Dsl;
 using Akka;
 using Akka.Streams;
+using FSM.Structures.Events.Domains;
+using FSM.Structures.Datas;
+using FSM.Actors;
+using PersitenceQuery.MyJournals;
 
 namespace PersitenceQuery
 {
@@ -12,12 +16,17 @@ namespace PersitenceQuery
         static void Main(string[] args)
         {
 
+            var temp = new ItemAdded(new Item("aa", "bbb", 100));
+
             var system = ActorSystem.Create("MyActorSystem004");//, msgconfig);
-            var readJournal = PersistenceQuery.Get(system).ReadJournalFor<RedisReadJournal>(RedisReadJournal.Identifier);
+
+            //var repo_actor = system.ActorOf(ReportActor.Props(), "Report002");
+            //var shop_actor = system.ActorOf(FSMShopActor.Props(repo_actor), "Shop002");
+
+            var readJournal = PersistenceQuery.Get(system).ReadJournalFor<MyJournal>(MyJournal.Identifier);
 
             // issue query to journal
-            Source<EventEnvelope, NotUsed> source = readJournal
-                .EventsByPersistenceId("test-jnjournal:persisted:my-stable-persistence-id", 0);
+            Source<string, NotUsed> source = readJournal.PersistenceIds();
 
             // materialize stream, consuming events
             var mat = ActorMaterializer.Create(system);
@@ -27,7 +36,7 @@ namespace PersitenceQuery
             }, mat);
 
 
-            Thread.Sleep(10000);
+            Thread.Sleep(60000);
         }
     }
 }
