@@ -4,24 +4,41 @@ using Akka.Persistence;
 using Akka.TestKit;
 using Shouldly;
 using PersitenceTest.Actors;
+using Akka.Dispatch.SysMsg;
+using Akka.Actor;
 
 namespace PersitenceTest;
 
-public class CounterActorTests : PersistenceTestKit
-{
-     private readonly TestProbe _probe;
+class MyInterceptor : IJournalInterceptor
+{    
+    private readonly Type _messageType;
 
-    public CounterActorTests()
+    public MyInterceptor(Type messageType)
     {
-        _probe = CreateTestProbe();
+        _messageType = messageType;
     }
 
+    public Task InterceptAsync(IPersistentRepresentation message)
+    {
+        var type = message.Payload.GetType();
+
+        if (_messageType.IsAssignableFrom(type))
+        {
+           throw new TestJournalFailureException(); 
+        }
+
+        return Task.FromResult(true);
+    }
+}
+
+public class CounterActorTests : PersistenceTestKit
+{
     [Fact]
     public async Task test1()
     {
         await WithJournalWrite(write => write.Pass(), () =>
         {
-            var actor = ActorOf(() => new CounterActor("test"), "counter");
+            var actor = ActorOf(() => new CounterActor("test"), "counter1");
             actor.Tell("inc", TestActor);
             actor.Tell("read", TestActor);
 
@@ -31,24 +48,41 @@ public class CounterActorTests : PersistenceTestKit
     }
 
     [Fact]
-    public async Task journal_must_reset_state_to_pass()
+    public async Task test2()
     {
-        await WithJournalWrite(write => write.Fail(), async () =>
+        await WithJournalWrite(write => write.SetInterceptorAsync(new MyInterceptor(typeof(int))), () =>
         {
-            var actor = ActorOf(() => new PersistActor(_probe));
-            Watch(actor);
-            await _probe.ExpectMsgAsync<RecoveryCompleted>();
+            var actor = ActorOf(() => new CounterActor("test"), "counter2");
+            actor.Tell("inc", TestActor);
+            //actor.Tell(1, TestActor);
+            actor.Tell("read", TestActor);
 
-            actor.Tell(new PersistActor.WriteMessage("write"), TestActor);
-            await _probe.ExpectMsgAsync("failure");
-            await ExpectTerminatedAsync(actor);
+            var result = ExpectMsg<int>(TimeSpan.FromSeconds(3));
+            result.ShouldBe(1);
+        });
+    }
+
+    [Fact]
+    public async Task test3()
+    {
+        await WithJournalWrite(write => write.Pass(), () =>
+        {
+            var actor = ActorOf(() => new CounterActor("test"), "counter3");
+            actor.Tell("inc", TestActor);
+            actor.Tell("read", TestActor);
+
+            var result = ExpectMsg<int>(TimeSpan.FromSeconds(3));
+            result.ShouldBe(1);
         });
 
-        var actor2 = ActorOf(() => new PersistActor(_probe));
-        Watch(actor2);
+        await WithJournalRecovery(write => write.Pass(), () =>
+        {
+            var actor = ActorOf(() => new CounterActor("test"), "counter4");
+            actor.Tell("inc", TestActor);
+            actor.Tell("read", TestActor);
 
-        await _probe.ExpectMsgAsync<RecoveryCompleted>();
-        actor2.Tell(new PersistActor.WriteMessage("write"), TestActor);
-        await _probe.ExpectMsgAsync("ack");
+            var result = ExpectMsg<int>(TimeSpan.FromSeconds(3));
+            result.ShouldBe(2);
+        });
     }
 }

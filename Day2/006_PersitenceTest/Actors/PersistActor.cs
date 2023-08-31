@@ -2,8 +2,6 @@ using System;
 using Akka.Persistence;
 using Akka.Actor;
 
-
-
 public class PersistActor : UntypedPersistentActor
 {
     public PersistActor(IActorRef probe)

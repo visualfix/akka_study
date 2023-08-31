@@ -15,33 +15,34 @@ public class CounterActor : UntypedPersistentActor
 
     protected override void OnCommand(object message)
     {
-        Console.WriteLine($"OnCommand {message}");
-
-        switch (message as string)
+        if(message is string)
         {
-            case "inc":
-                value++;
-                Persist(message, _ => { });
-                break;
+            var msg = message as string;
+            switch (msg)
+            {
+                case "inc":
+                    value++;
+                    Persist(message, _ => { });
+                    break;
 
-            case "dec":
-                value++;
-                Persist(message, _ => { });
-                break;
+                case "dec":
+                    value++;
+                    Persist(message, _ => { });
+                    break;
 
-            case "read":
-                Sender.Tell(value, Self);
-                break;
-
-            default:
-                return;
+                case "read":
+                    Sender.Tell(value, Self);
+                    break;
+            }
         }
+        else
+        {
+            Persist(message, _ => { });
+        }        
     }
 
     protected override void OnRecover(object message)
     {
-        Console.WriteLine($"OnRecover {message}");
-
         switch (message as string)
         {
             case "inc":
