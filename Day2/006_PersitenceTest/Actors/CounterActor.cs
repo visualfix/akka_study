@@ -15,6 +15,8 @@ public class CounterActor : UntypedPersistentActor
 
     protected override void OnCommand(object message)
     {
+        Console.WriteLine($"OnCommand {message}");
+
         switch (message as string)
         {
             case "inc":
@@ -38,6 +40,8 @@ public class CounterActor : UntypedPersistentActor
 
     protected override void OnRecover(object message)
     {
+        Console.WriteLine($"OnRecover {message}");
+
         switch (message as string)
         {
             case "inc":
