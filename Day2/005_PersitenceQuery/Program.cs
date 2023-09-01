@@ -16,20 +16,13 @@ namespace PersitenceQuery
         static void Main(string[] args)
         {
 
-            var temp = new ItemAdded(new Item("aa", "bbb", 100));
-
-            var system = ActorSystem.Create("MyActorSystem004");//, msgconfig);
-
-            //var repo_actor = system.ActorOf(ReportActor.Props(), "Report002");
-            //var shop_actor = system.ActorOf(FSMShopActor.Props(repo_actor), "Shop002");
+            var system = ActorSystem.Create("MyActorSystem004");
 
             var readJournal = PersistenceQuery.Get(system).ReadJournalFor<MyJournal>(MyJournal.Identifier);
 
-            // issue query to journal
             Source<string, NotUsed> source = readJournal.PersistenceIds();
-
-            // materialize stream, consuming events
             var mat = ActorMaterializer.Create(system);
+            
             source.RunForeach(envelope =>
             {
                 Console.WriteLine($"event {envelope}");

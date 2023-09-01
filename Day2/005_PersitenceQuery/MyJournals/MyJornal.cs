@@ -16,18 +16,23 @@ namespace PersitenceQuery.MyJournals;
 {
     public static readonly string Identifier = "akka.persistence.query.journal.my-journal";
 
-    public Source<string, NotUsed> PersistenceIds() => Source.From(Iterate(0, 10)).Select(i => i.ToString());
+    public Source<string, NotUsed> PersistenceIds() => Source.From(Iterate(0, 5)).Select(i => i.ToString());
 
-    private IEnumerable<int> Iterate(int start, int end)
+    private IEnumerable<string> Iterate(int start, int end)
     {
-        int s = start;
-        while (s < end) yield return s++;
+        while (start < end) 
+        {
+            Thread.Sleep(500);
+            yield return $"{start++} - {DateTime.Now.ToString()}";
+        }
+        
         Thread.Sleep(3000);
-
-        s = start;
-        while (s < end) yield return s++;
+        while (start < (end * 2))
+        {
+            Thread.Sleep(500);
+            yield return $"{start++} - {DateTime.Now.ToString()}";
+        } 
     }
-
 }
 
 public class MyJournalProvider : IReadJournalProvider
