@@ -61,6 +61,7 @@ public class CounterActorTests : PersistenceTestKit
             result.ShouldBe(1);
         });
     }
+    
 
     [Fact]
     public async Task test3()
@@ -83,6 +84,31 @@ public class CounterActorTests : PersistenceTestKit
 
             var result = ExpectMsg<int>(TimeSpan.FromSeconds(3));
             result.ShouldBe(2);
+        });
+    }
+
+    [Fact]
+    public async Task test4()
+    {
+        await WithJournalWrite(write => write.FailIf( (message) => {
+            var type = message.Payload.GetType();
+
+            if (typeof(int).IsAssignableFrom(type))
+            {
+                return true;
+            }
+
+            return false;
+
+        }), () =>
+        {
+            var actor = ActorOf(() => new CounterActor("test"), "counter5");
+            actor.Tell("inc", TestActor);
+            //actor.Tell(1, TestActor);
+            actor.Tell("read", TestActor);
+
+            var result = ExpectMsg<int>(TimeSpan.FromSeconds(3));
+            result.ShouldBe(1);
         });
     }
 }
